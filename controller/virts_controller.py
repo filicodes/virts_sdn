@@ -13,6 +13,7 @@ from ryu.lib.packet import ipv6 as ipv6_pkt  # optional
 import json
 import urllib.request
 from ryu.lib import hub
+import os, subprocess
 
 DROP_PRIO = 500
 
@@ -21,6 +22,12 @@ class SimpleSwitch13(app_manager.RyuApp):
 
     def __init__(self, *args, **kwargs):
         super(SimpleSwitch13, self).__init__(*args, **kwargs)
+
+        here = os.path.dirname(os.path.abspath(__file__))
+        self.dijkstra_script = os.path.normpath(os.path.join(here, "..", "algorithm", "virts_dijkstra.py"))
+
+        self._printed_routes = set()
+
         self.mac_to_port = {}
         # registry of connected datapaths: dpid -> datapath object
         self.dp_map = {}
@@ -120,9 +127,7 @@ class SimpleSwitch13(app_manager.RyuApp):
     
     def break_link_A(self):
         dp1, dp2, dp3, dp4 = self.dp_map.get(1), self.dp_map.get(2), self.dp_map.get(3), self.dp_map.get(4)
-        if not (dp1 and dp2 and dp3 and dp4):
-            self.logger.warning("Waiting for OVS Switch Connection!...")
-            return
+        
 
         # Break Link A
         self._drop_inport(dp1, 2)
@@ -130,9 +135,7 @@ class SimpleSwitch13(app_manager.RyuApp):
     
     def break_link_B(self):
         dp1, dp2, dp3, dp4 = self.dp_map.get(1), self.dp_map.get(2), self.dp_map.get(3), self.dp_map.get(4)
-        if not (dp1 and dp2 and dp3 and dp4):
-            self.logger.warning("Waiting for OVS Switch Connection!...")
-            return
+        
 
         # Break Link B
         self._drop_inport(dp1, 3)
@@ -140,9 +143,7 @@ class SimpleSwitch13(app_manager.RyuApp):
     
     def break_link_C(self):
         dp1, dp2, dp3, dp4 = self.dp_map.get(1), self.dp_map.get(2), self.dp_map.get(3), self.dp_map.get(4)
-        if not (dp1 and dp2 and dp3 and dp4):
-            self.logger.warning("Waiting for OVS Switch Connection!...")
-            return
+        
 
         # Break Link C
         self._drop_inport(dp3, 2)
@@ -150,9 +151,7 @@ class SimpleSwitch13(app_manager.RyuApp):
 
     def break_link_D(self):
         dp1, dp2, dp3, dp4 = self.dp_map.get(1), self.dp_map.get(2), self.dp_map.get(3), self.dp_map.get(4)
-        if not (dp1 and dp2 and dp3 and dp4):
-            self.logger.warning("Waiting for OVS Switch Connection!...")
-            return
+        
 
         # Break Link D
         self._drop_inport(dp2, 3)
@@ -160,9 +159,7 @@ class SimpleSwitch13(app_manager.RyuApp):
     
     def break_link_E(self):
         dp1, dp2, dp3, dp4 = self.dp_map.get(1), self.dp_map.get(2), self.dp_map.get(3), self.dp_map.get(4)
-        if not (dp1 and dp2 and dp3 and dp4):
-            self.logger.warning("Waiting for OVS Switch Connection!...")
-            return
+        
 
         # Break Link E
         self._drop_inport(dp2, 4)
@@ -170,13 +167,43 @@ class SimpleSwitch13(app_manager.RyuApp):
 
     def break_link_F(self):
         dp1, dp2, dp3, dp4 = self.dp_map.get(1), self.dp_map.get(2), self.dp_map.get(3), self.dp_map.get(4)
-        if not (dp1 and dp2 and dp3 and dp4):
-            self.logger.warning("Waiting for OVS Switch Connection!...")
-            return
+        
 
         # Break Link F
         self._drop_inport(dp1, 5)
         self._drop_inport(dp4, 5)
+    
+
+    # Functions to autorun djikstras code
+    def _maybe_run_path(self, src_node: str, dst_node: str):
+        """
+        Run the external Dijkstra script once per (src_node, dst_node) pair.
+        Spawned on a green thread to avoid blocking Ryu's event loop.
+        """
+        key = (src_node, dst_node)
+        if key in self._printed_routes:
+            return
+        self._printed_routes.add(key)
+        hub.spawn(self._run_dijkstra_and_log, src_node, dst_node)
+
+    def _run_dijkstra_and_log(self, src_node: str, dst_node: str):
+        """
+        Call: python3 sdn/ai/nx.py <src_node> <dst_node>
+        and log the stdout.
+        """
+        
+        try:
+            out = subprocess.check_output(
+                ["python3", self.dijkstra_script, src_node, dst_node],
+                stderr=subprocess.STDOUT,
+                timeout=10,
+            ).decode(errors="ignore").strip()
+            # Print to Ryu logs
+            self.logger.warning("[Dijkstra] %s", out)
+        except subprocess.CalledProcessError as e:
+            self.logger.error("[Dijkstra] failed (rc=%s): %s", e.returncode, e.output.decode(errors="ignore"))
+        except Exception as e:
+            self.logger.error("[Dijkstra] error: %r", e)
     
 
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
@@ -187,6 +214,7 @@ class SimpleSwitch13(app_manager.RyuApp):
 
         # store datapath for later cross-programming
         self.dp_map[datapath.id] = datapath
+        self.logger.info("[SWITCH UP] dpid=%s connected", datapath.id)
 
         # table-miss: send to controller (no buffer)
         match = parser.OFPMatch()
@@ -201,7 +229,7 @@ class SimpleSwitch13(app_manager.RyuApp):
         datapath = msg.datapath
         ofproto = datapath.ofproto
         parser = datapath.ofproto_parser
-
+        
         reason = msg.reason
         in_port = msg.match['in_port']
 
@@ -214,14 +242,24 @@ class SimpleSwitch13(app_manager.RyuApp):
         ip4 = pkt.get_protocol(ipv4_pkt.ipv4)
         if ip4:
             src_ip, dst_ip = ip4.src, ip4.dst
+            # self.logger.debug("PktIn reason=%s IPv4 %s -> %s", reason, src_ip, dst_ip)
+
+            
         else:
             ip6 = pkt.get_protocol(ipv6_pkt.ipv6)
             if ip6:
                 src_ip, dst_ip = ip6.src, ip6.dst
             else:
                 src_ip = dst_ip = None
+    
+        if reason != ofproto.OFPR_NO_MATCH:
         
-        # if reason != ofproto.OFPR_NO_MATCH:
+            if ((src_ip == '10.0.0.1' and dst_ip == '10.0.0.2') or (src_ip == '10.0.0.2' and dst_ip == '10.0.0.1')):
+                    self._maybe_run_path("pc1", "pc2")
+                    self.logger.info("FUNCTION CALLED!")
+
+                    # take djistra out and write function here - tomorrow
+    
 
         self._broke_A = False
 

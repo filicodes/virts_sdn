@@ -19,7 +19,7 @@ def default_links_path() -> str:
     (your structure: sdn/ai/nx.py and sdn/app/links.json)
     """
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    return os.path.normpath(os.path.join(base_dir, "..", "app", "links.json"))
+    return os.path.normpath(os.path.join(base_dir, "..", "topology", "links.json"))
 
 def load_links_from_json(path: str = None) -> list:
     """Reads links.json and returns a list of dicts"""

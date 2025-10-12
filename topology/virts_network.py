@@ -52,6 +52,7 @@ def load_link_delays(json_path, directed=False):
 
 
 def run():
+
     delay_for = load_link_delays('links.json', directed=False)
     setLogLevel('info')
     net = Mininet_wifi(controller=None, link=TCLink, switch=OVSKernelSwitch)

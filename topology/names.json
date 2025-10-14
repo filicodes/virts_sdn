@@ -1,0 +1,8 @@
+[
+    {"name": "A", "nodesf": "sw1,sw2", "nodesr": "sw2,sw1"},
+    {"name": "B", "nodesf": "sw1,sw3", "nodesr": "sw3,sw1"},
+    {"name": "C", "nodesf": "sw3,sw4", "nodesr": "sw4,sw3"},
+    {"name": "D", "nodesf": "sw4,sw2", "nodesr": "sw2,sw4"},
+    {"name": "E", "nodesf": "sw2,sw3", "nodesr": "sw3,sw2"},
+    {"name": "F", "nodesf": "sw1,sw4", "nodesr": "sw4,sw1"}
+]

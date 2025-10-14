@@ -1,17 +1,17 @@
 [
 
-        {"name":"pc1-sw1","u":"pc1","v":"sw1","delay_ms":50},
+        {"name":"pc1-sw1","u":"pc1","v":"sw1","delay_ms":0},
         {"name":"pc2-sw3","u":"pc2","v":"sw3","delay_ms":0},
         {"name":"pc5-sw2","u":"pc5","v":"sw2","delay_ms":0},
         {"name":"pc6-sw4","u":"pc6","v":"sw4","delay_ms":0},
 
 
-        {"name":"sw1-sw2","u":"sw1","v":"sw2","delay_ms":50},
-        {"name":"sw1-sw3","u":"sw1","v":"sw3","delay_ms":10},
-        {"name":"sw3-sw4","u":"sw3","v":"sw4","delay_ms":5},
-        {"name":"sw4-sw2","u":"sw4","v":"sw2","delay_ms":20},
-        {"name":"sw1-sw4","u":"sw1","v":"sw4","delay_ms":45},
-        {"name":"sw2-sw3","u":"sw2","v":"sw3","delay_ms":5},
+        {"name":"sw1-sw2","u":"sw1","v":"sw2","delay_ms":10},
+        {"name":"sw1-sw3","u":"sw1","v":"sw3","delay_ms":50},
+        {"name":"sw3-sw4","u":"sw3","v":"sw4","delay_ms":60},
+        {"name":"sw4-sw2","u":"sw4","v":"sw2","delay_ms":25},
+        {"name":"sw1-sw4","u":"sw1","v":"sw4","delay_ms":30},
+        {"name":"sw2-sw3","u":"sw2","v":"sw3","delay_ms":15},
 
 
         {"name":"sw1-ap2","u":"sw1","v":"ap2","delay_ms":0},

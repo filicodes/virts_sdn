@@ -113,8 +113,8 @@ def main():
         sys.exit(1)
 
     total_str = int(total) if float(total).is_integer() else total
-    print(f"{args.src} -> {args.dst}: {' -> '.join(lp)}  (total: {total_str} ms)")
-    print(f"nodes: {' -> '.join(nodes)}")
+    # print(f"{args.src} -> {args.dst}: {' -> '.join(lp)}  (total: {total_str} ms)")
+    print(f"nodes: {','.join(nodes)} (total: {total_str} ms)")
 
 
 if __name__ == "__main__":

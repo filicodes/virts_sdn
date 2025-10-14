@@ -175,7 +175,7 @@ class SimpleSwitch13(app_manager.RyuApp):
     
 
     # Functions to autorun djikstras code
-    def _maybe_run_path(self, src_node: str, dst_node: str):
+    def _run_path(self, src_node: str, dst_node: str):
         """
         Run the external Dijkstra script once per (src_node, dst_node) pair.
         Spawned on a green thread to avoid blocking Ryu's event loop.
@@ -253,10 +253,51 @@ class SimpleSwitch13(app_manager.RyuApp):
                 src_ip = dst_ip = None
     
         if reason != ofproto.OFPR_NO_MATCH:
-        
-            if ((src_ip == '10.0.0.1' and dst_ip == '10.0.0.2') or (src_ip == '10.0.0.2' and dst_ip == '10.0.0.1')):
-                    self._maybe_run_path("pc1", "pc2")
-                    self.logger.info("FUNCTION CALLED!")
+            if src_ip and dst_ip:
+                if ((src_ip == '10.0.0.1' and dst_ip == '10.0.0.2') or (src_ip == '10.0.0.2' and dst_ip == '10.0.0.1')):
+                    # Run dijk
+                    line = self._run_path("pc1", "pc2")
+                    if line and "nodes:" in line:  # ✅ ensure valid output
+                        inside = line.split("nodes:")[1].split("(")[0].strip()
+                        nodes = [n.strip() for n in inside.split(",")]
+                        switches = [n for n in nodes if "sw" in n]
+                        result = ",".join(switches)
+                        self.logger.info("SWs - %s", result)
+                    else:
+                        return
+                    # fix abobve when home
+
+                elif ((src_ip == '10.0.0.1' and dst_ip == '10.0.0.3') or (src_ip == '10.0.0.3' and dst_ip == '10.0.0.1')):
+                    pass
+                elif ((src_ip == '10.0.0.1' and dst_ip == '10.0.0.4') or (src_ip == '10.0.0.4' and dst_ip == '10.0.0.1')):
+                    pass
+                elif ((src_ip == '10.0.0.1' and dst_ip == '10.0.0.5') or (src_ip == '10.0.0.5' and dst_ip == '10.0.0.1')):
+                    pass
+                elif ((src_ip == '10.0.0.1' and dst_ip == '10.0.0.6') or (src_ip == '10.0.0.6' and dst_ip == '10.0.0.1')):
+                    pass
+                elif ((src_ip == '10.0.0.2' and dst_ip == '10.0.0.3') or (src_ip == '10.0.0.3' and dst_ip == '10.0.0.2')):
+                    pass
+                elif ((src_ip == '10.0.0.2' and dst_ip == '10.0.0.4') or (src_ip == '10.0.0.4' and dst_ip == '10.0.0.2')):
+                    pass
+                elif ((src_ip == '10.0.0.2' and dst_ip == '10.0.0.5') or (src_ip == '10.0.0.5' and dst_ip == '10.0.0.2')):
+                    pass
+                elif ((src_ip == '10.0.0.2' and dst_ip == '10.0.0.6') or (src_ip == '10.0.0.6' and dst_ip == '10.0.0.2')):
+                    pass
+                elif ((src_ip == '10.0.0.3' and dst_ip == '10.0.0.4') or (src_ip == '10.0.0.4' and dst_ip == '10.0.0.3')):
+                    pass
+                elif ((src_ip == '10.0.0.3' and dst_ip == '10.0.0.5') or (src_ip == '10.0.0.5' and dst_ip == '10.0.0.3')):
+                    pass
+                elif ((src_ip == '10.0.0.3' and dst_ip == '10.0.0.6') or (src_ip == '10.0.0.6' and dst_ip == '10.0.0.3')):
+                    pass
+                elif ((src_ip == '10.0.0.4' and dst_ip == '10.0.0.5') or (src_ip == '10.0.0.5' and dst_ip == '10.0.0.4')):
+                    pass
+                elif ((src_ip == '10.0.0.4' and dst_ip == '10.0.0.6') or (src_ip == '10.0.0.6' and dst_ip == '10.0.0.4')):
+                    pass
+                elif ((src_ip == '10.0.0.5' and dst_ip == '10.0.0.6') or (src_ip == '10.0.0.6' and dst_ip == '10.0.0.5')):
+                    pass
+                else:
+                    pass
+            return
 
                     # take djistra out and write function here - tomorrow
     

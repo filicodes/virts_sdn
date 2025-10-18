@@ -121,7 +121,7 @@ def run():
     pc4.cmd('sleep 1')
     info(pc4.cmd('iw dev pc4-wlan0 link'))
 
-    info('*** Ready. Try: pc3 ping -c2 pc4; pc3 ping -c2 pc1; pc1 ping -c2 pc2\n')
+    
     CLI(net)
     net.stop()
 

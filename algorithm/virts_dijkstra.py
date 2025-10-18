@@ -14,10 +14,7 @@ import networkx as nx
 
 # ---------- Load links directly from links.json ----------
 def default_links_path() -> str:
-    """
-    Resolve ../app/links.json relative to this script location.
-    (your structure: sdn/ai/nx.py and sdn/app/links.json)
-    """
+    
     base_dir = os.path.dirname(os.path.abspath(__file__))
     return os.path.normpath(os.path.join(base_dir, "..", "topology", "links.json"))
 

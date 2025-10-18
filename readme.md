@@ -5,21 +5,6 @@ This project simulates dynamic link management, where the controller calculates 
 
 ---
 
-## 🧩 Project Structure
-
-virts_sdn/
-├── controller/
-│ └── virts_controller.py # Ryu app: link control logic + Dijkstra integration
-├── topology/
-│ ├── virts_network.py # Mininet-WiFi topology definition
-│ └── names.json # Link-to-name mapping (A–F)
-├── algorithm/
-│ └── virts_dijkstra.py # Dijkstra path calculation script
-└── autorun.sh # Auto-launcher for Ryu + Mininet
-
-
----
-
 ## ⚙️ Features
 
 - **Dynamic link control:** Ryu controller breaks/restores inter-switch links based on Dijkstra output.  
@@ -41,9 +26,16 @@ source ~/ryu-venv/bin/activate
 
 pip install ryu networkx mininet-wifi
 
-3. Run everything automatically
+Install below dependancies as well:
+setuptools v67.8.0
+eventlet   v0.40.3
+greenlet   v3.2.4
+networkx   v3.5
 
-bash autorun.sh
+
+3. Run everything automatically
+cd /topology
+./autorun.sh
 
 This will:
 
@@ -89,14 +81,8 @@ Command	Description
 sudo mn -c	Clean up previous Mininet state
 ryu-manager virts_sdn/controller/virts_controller.py	Run controller manually
 sudo python3 virts_sdn/topology/virts_network.py	Start topology manually
-h1 ping h2	Ping between hosts to trigger Dijkstra
-📊 Topology Overview
+pc1 ping pc2	Ping between hosts to trigger Dijkstra
 
-  pc1      pc2      pc3
-   |        |        |
-  sw1------sw2------sw3------sw4
-   |        |        |
-  pc4      pc5      pc6
 
 Link labels (A–F) are defined in names.json and correspond to each inter-switch connection.
 🧩 Requirements
@@ -109,7 +95,7 @@ Link labels (A–F) are defined in names.json and correspond to each inter-switc
 
     NetworkX: ≥ 3.0
 
-    Ubuntu: recommended (tested on 22.04)
+    Ubuntu: recommended (tested on 24.04)
 
 🧠 Notes
 
